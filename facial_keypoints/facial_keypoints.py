@@ -30,7 +30,7 @@ for nn in xrange( len(str_X) ):
 from sklearn.ensemble import RandomForestClassifier
 
 loc_cols = list( train.columns[:-1] )
-clf = RandomForestClassifier( n_jobs=-1 , n_estimators=20 )
+clf = RandomForestClassifier( n_jobs=6 , n_estimators=20 )
 
 myarr = np.zeros( (len( pred_X) , len(loc_cols) ) )
 
@@ -43,7 +43,7 @@ X = joblib.load(filename, mmap_mode='c')
 for nn in range( len(loc_cols)):
     loc = train[ loc_cols[nn] ].values
     del clf
-    clf = RandomForestClassifier( n_jobs=10 , n_estimators=50 )
+    clf = RandomForestClassifier( n_jobs=6 , n_estimators=50 )
     clf.fit( X , loc )
     
     myarr[:, nn] = clf.predict( pred_X )
@@ -59,7 +59,8 @@ out_csv.to_csv( 'SampleSubmission.csv' , index=False )
 
 end = time.time()
 print 'Time elapsed ', round( ( end-start ) / 60 , 2 ) , ' minutes'
-    
+  
+  
 """
     
     out_csv = pd.read_csv( 'SampleSubmission.csv' )
