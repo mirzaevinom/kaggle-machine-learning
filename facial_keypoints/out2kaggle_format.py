@@ -12,13 +12,19 @@ cols = train.columns[:-1]
 data = np.reshape( sample['Location'].values , (-1, 30) )
 imageid = 30 * range(1, len(data)+1 )
 
+imageid.sort()
+
+"""
 out_df = pd.DataFrame( data, columns = cols )
+
 
 out_df = out_df.interpolate( method ='nearest' , axis=0 )
 
 out_df.fillna( method='bfill', inplace=True)
 out_df.fillna( method='ffill', inplace=True)
-sample['Location'] = out_df.values.flatten()
+
+
+sample['Location'] = out_df.values.flatten()"""
 sample['RowId'] = sample['RowId'].astype('int')
 sample['ImageId'] = imageid
 sample['FeatureName'] = len(data) * list(cols)
@@ -39,3 +45,4 @@ result['RowId'] = np.arange(len(result)) +1
 result = result.drop( key_col , axis=1)
 result = result.reset_index( drop=True)
 result.to_csv( 'final_output.csv', index=False)
+

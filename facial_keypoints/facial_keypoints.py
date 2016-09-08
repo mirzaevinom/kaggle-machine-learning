@@ -1,13 +1,15 @@
 from __future__ import division
 import numpy as np
 import pandas as pd
-import time
+import time, os
 from sklearn.externals import joblib
 
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeRegressor
 
 start = time.time()
 
+print time.strftime( '%H:%M', time.localtime() )
 
 def histogram_equalization( image , number_bins=256):
     """This transform flattens the graylevel histogram of an image so that 
@@ -62,7 +64,6 @@ for col in loc_cols:
     
     train[col].fillna( train[col].mean() , inplace=True )
 
-clf = RandomForestClassifier( n_jobs=6 , n_estimators=20 )
 
 myarr = np.zeros( (len( pred_X) , len(loc_cols) ) )
 
@@ -75,13 +76,15 @@ X = joblib.load(filename, mmap_mode='c')
  
 #For each column of train.csv train and predict the values for test.csv
 for nn in range( len(loc_cols)):
-    loc = train[ loc_cols[nn] ].values
-    del clf
-    clf = RandomForestClassifier( n_jobs=4 , n_estimators=50 )
+    loc = train[ loc_cols[nn] ].values.astype( np.float32 ).flatten()
+    
+    """clf = RandomForestClassifier( n_jobs=10 , n_estimators=10 , 
+                                  max_depth=8 , max_features=None )"""
+    clf = DecisionTreeRegressor( max_depth = 30 )                              
     clf.fit( X , loc )
     
-    myarr[:, nn] = clf.predict( pred_X )
-    
+    myarr[:, nn] = clf.predict( pred_X ).copy()
+    del clf
 
 out_array = np.zeros( ( len( pred_X)*len(loc_cols)  , 2) )
 
@@ -91,7 +94,12 @@ out_array[:, 1] = myarr.flatten()
 out_csv = pd.DataFrame( out_array , columns=[ 'RowId' , 'Location' ] )
 out_csv.to_csv( 'SampleSubmission.csv' , index=False )
 
-
+for file in os.listdir("./"):
+    if ( file.find('dataset') >= 0 ):
+        try:        
+            os.remove( file )
+        except OSError, e:
+            print ("Error: %s - %s." % (e.filename,e.strerror))
 end = time.time()
 print 'Time elapsed ', round( ( end-start ) / 60 , 2 ) , ' minutes'
   
