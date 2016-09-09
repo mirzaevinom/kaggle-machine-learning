@@ -80,7 +80,7 @@ for nn in range( len(loc_cols)):
     
     """clf = RandomForestClassifier( n_jobs=10 , n_estimators=10 , 
                                   max_depth=8 , max_features=None )"""
-    clf = DecisionTreeRegressor( max_depth = 30 )                              
+    clf = DecisionTreeRegressor( max_depth = 8 )                              
     clf.fit( X , loc )
     
     myarr[:, nn] = clf.predict( pred_X ).copy()

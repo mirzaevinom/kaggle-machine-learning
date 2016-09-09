@@ -25,6 +25,7 @@ out_df.fillna( method='ffill', inplace=True)
 
 
 sample['Location'] = out_df.values.flatten()"""
+
 sample['RowId'] = sample['RowId'].astype('int')
 sample['ImageId'] = imageid
 sample['FeatureName'] = len(data) * list(cols)
