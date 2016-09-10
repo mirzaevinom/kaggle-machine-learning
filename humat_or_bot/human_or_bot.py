@@ -13,7 +13,7 @@ import pandas as pd
 import time, sys
 from sklearn.externals import joblib
 from sklearn.svm import LinearSVC, SVC
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier ,  GradientBoostingRegressor
 from sklearn.tree import DecisionTreeRegressor
 
 start = time.time()
@@ -147,6 +147,7 @@ pred_df = pd.merge( df , test ,   on=['bidder_id'] ).drop( ['address', 'payment_
 #==============================================================================
 from sklearn.grid_search import GridSearchCV
 
+"""
 rfc = RandomForestClassifier(n_jobs=-1,max_features= 'sqrt' , n_estimators=50, oob_score = True) 
 
 param_grid = { 
@@ -157,8 +158,22 @@ param_grid = {
 
 CV_rfc = GridSearchCV(estimator=rfc, param_grid=param_grid, cv= 5)
 CV_rfc.fit( fit_df[ fit_df.columns[1:-1] ].values , fit_df[ fit_df.columns[-1] ].values )
-print CV_rfc.best_params_
 
+print CV_rfc.best_params_
+"""
+param_grid = {"learning_rate": [0.1, 0.01, 0.001],
+"subsample": [1.0, 0.9, 0.8],
+"max_depth": [3, 5, 7],
+"min_samples_leaf": [1, 3, 5]}
+
+gbr = GradientBoostingRegressor(n_estimators=100)
+
+from sklearn.cross_validation import ShuffleSplit
+
+grid = GridSearchCV( gbr , param_grid,
+cv=ShuffleSplit(n=len(fit_df), n_iter=10, test_size=0.25),
+scoring="mean_squared_error",
+n_jobs=-1).fit( fit_df[ fit_df.columns[1:-1] ].values , fit_df[ fit_df.columns[-1] ].values )
 
 #==============================================================================
 # Use best params to get the results
@@ -166,8 +181,9 @@ print CV_rfc.best_params_
 
 #clf = DecisionTreeRegressor( )
 
-clf = RandomForestClassifier( n_jobs=-1 , **CV_rfc.best_params_ )
+#clf = RandomForestClassifier( n_jobs=-1 , **CV_rfc.best_params_ )
 
+clf = grid.best_estimator_ 
 clf.fit( fit_df[ fit_df.columns[1:-1] ].values , fit_df[ fit_df.columns[-1] ].values  )
 
 
@@ -194,7 +210,6 @@ output.fillna( 0 , inplace=True)
 
 
 output.to_csv( 'final_output.csv' , index=False)
-
 
 
     
