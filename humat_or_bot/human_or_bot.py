@@ -16,6 +16,11 @@ from sklearn.svm import LinearSVC, SVC
 from sklearn.ensemble import RandomForestClassifier ,  GradientBoostingRegressor
 from sklearn.tree import DecisionTreeRegressor
 
+from sklearn.grid_search import GridSearchCV
+
+from sklearn.cross_validation import ShuffleSplit
+
+
 start = time.time()
 
 train = pd.read_csv( 'train.csv' ) 
@@ -145,7 +150,6 @@ pred_df = pd.merge( df , test ,   on=['bidder_id'] ).drop( ['address', 'payment_
 #==============================================================================
 # Find the best parameters for RandomForestClassifier using grisearch algorithm
 #==============================================================================
-from sklearn.grid_search import GridSearchCV
 
 """
 rfc = RandomForestClassifier(n_jobs=-1,max_features= 'sqrt' , n_estimators=50, oob_score = True) 
@@ -161,19 +165,19 @@ CV_rfc.fit( fit_df[ fit_df.columns[1:-1] ].values , fit_df[ fit_df.columns[-1] ]
 
 print CV_rfc.best_params_
 """
-param_grid = {"learning_rate": [0.1, 0.01, 0.001],
+param_grid = { 'n_estimators':[10, 50, 100, 200, 500],
+"learning_rate": [0.1, 0.01, 0.001],
 "subsample": [1.0, 0.9, 0.8],
-"max_depth": [3, 5, 7],
+"max_depth": [3, 5, 7 , 10],
+'max_features': ['auto', 'sqrt', 'log2', None],
 "min_samples_leaf": [1, 3, 5]}
 
-gbr = GradientBoostingRegressor(n_estimators=100)
-
-from sklearn.cross_validation import ShuffleSplit
+gbr = GradientBoostingRegressor()
 
 grid = GridSearchCV( gbr , param_grid,
 cv=ShuffleSplit(n=len(fit_df), n_iter=10, test_size=0.25),
 scoring="mean_squared_error",
-n_jobs=-1).fit( fit_df[ fit_df.columns[1:-1] ].values , fit_df[ fit_df.columns[-1] ].values )
+n_jobs=10 ).fit( fit_df[ fit_df.columns[1:-1] ].values , fit_df[ fit_df.columns[-1] ].values )
 
 #==============================================================================
 # Use best params to get the results
