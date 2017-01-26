@@ -38,6 +38,8 @@ train['Image'] = train['Image'].apply( lambda im: np.fromstring( im , sep=' ') )
 #Apply histogram equalization
 train['Image'] = train['Image'].apply( histogram_equalization )
 
+print len(train['Image'][0])
+
 # Store in 2D array
 X = np.vstack( train['Image'].values )
 X = X.astype( np.float32 )

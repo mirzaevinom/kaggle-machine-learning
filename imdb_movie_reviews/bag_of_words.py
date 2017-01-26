@@ -184,15 +184,6 @@ pred_df = pd.read_csv('sampleSubmission.csv')
 
 pred_df['sentiment'] = clf.predict(  test_data_features )
 
-def adjust( row ):
-    
-    if row>0.1:
-        return 1
-    else:
-        return 0  
-
-pred_df['sentiment'] = pred_df['sentiment'].apply( adjust )
-
 pred_df.to_csv( 'final_output.csv' , index=False )
 
 
